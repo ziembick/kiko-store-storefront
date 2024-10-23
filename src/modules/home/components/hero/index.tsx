@@ -11,7 +11,7 @@ const Hero = () => {
             level="h1"
             className="text-3xl leading-10 text-ui-fg-base font-normal"
           >
-            <Image src="https://medusa-public-images.s3.eu-west-1.amazonaws.com/tee-black-front.png" alt="Image banner" fill/>
+            <Image src="https://kiko-store-production.up.railway.app/uploads/banner_main.jpg" alt="Image banner" fill/>
           </Heading>
           {/* <Heading
             level="h2"

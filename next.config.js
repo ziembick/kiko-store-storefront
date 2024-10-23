@@ -14,6 +14,10 @@ const nextConfig = withStoreConfig({
         hostname: "localhost",
       },
       {
+        protocol: "http",
+        hostname: "https://kiko-store-production.up.railway.app",
+      },
+      {
         protocol: "https",
         hostname: "medusa-public-images.s3.eu-west-1.amazonaws.com",
       },

@@ -22,6 +22,7 @@
   "dependencies": {
     "@headlessui/react": "^1.6.1",
     "@hookform/error-message": "^2.0.0",
+    "@medusajs/file-local": "^2.0.0",
     "@medusajs/link-modules": "^0.2.3",
     "@medusajs/medusa-js": "^6.1.7",
     "@medusajs/modules-sdk": "^1.12.3",
@@ -61,6 +62,7 @@
     "@types/react-instantsearch-dom": "^6.12.3",
     "autoprefixer": "^10.4.2",
     "babel-loader": "^8.2.3",
+    "babel-preset-next": "^1.4.0",
     "eslint": "8.10.0",
     "eslint-config-next": "^13.4.5",
     "postcss": "^8.4.8",
