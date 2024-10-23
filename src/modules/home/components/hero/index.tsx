@@ -11,7 +11,7 @@ const Hero = () => {
             level="h1"
             className="text-3xl leading-10 text-ui-fg-base font-normal"
           >
-            <Image src="https://medusa-public-images.s3.eu-west-1.amazonaws.com/tee-black-front.png" alt="Image banner" width={1440} height={50}/>
+            <Image src="https://medusa-public-images.s3.eu-west-1.amazonaws.com/tee-black-front.png" alt="Image banner" fill/>
           </Heading>
           {/* <Heading
             level="h2"
@@ -24,10 +24,10 @@ const Hero = () => {
           href="https://github.com/medusajs/nextjs-starter-medusa"
           target="_blank"
         >
-          <Button variant="secondary">
+          {/* <Button variant="secondary">
             View on GitHub
             <Github />
-          </Button>
+          </Button> */}
         </a>
       </div>
     </div>
