@@ -6,8 +6,9 @@ const Hero = () => {
   return (
     <div className="h-[75vh] w-full border-b border-ui-border-base relative bg-ui-bg-subtle">
       <div className="absolute inset-0 z-10 flex flex-col justify-center items-center text-center small:p-32 gap-6">
-        <Image src="/img/banner_main.jpg" alt="Main banenr" width={1440} height={100}/>
-        <Image src="/img/banner2.jpg" alt="Main banenr"/>
+        <Image src="/banner_main.jpg" alt="Main banenr" width={1440} height={100}/>
+        <Image src="/banner_main.jpg" alt="Main banenr2"/>
+        <Image src="/img/banner2.jpg" alt="Main banenr3"/>
       </div>
     </div>
   )
