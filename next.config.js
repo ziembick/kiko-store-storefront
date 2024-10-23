@@ -14,8 +14,8 @@ const nextConfig = withStoreConfig({
         hostname: "localhost",
       },
       {
-        protocol: "http",
-        hostname: "https://kiko-store-production.up.railway.app",
+        protocol: "https",
+        hostname: "kiko-store-production.up.railway.app",
       },
       {
         protocol: "https",
