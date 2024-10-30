@@ -35,13 +35,13 @@ const AccountNav = ({
           >
             <>
               <ChevronDown className="transform rotate-90" />
-              <span>Account</span>
+              <span>Conta</span>
             </>
           </LocalizedClientLink>
         ) : (
           <>
             <div className="text-xl-semi mb-4 px-8">
-              Hello {customer?.first_name}
+              Olá, {customer?.first_name}
             </div>
             <div className="text-base-regular">
               <ul>
@@ -54,7 +54,7 @@ const AccountNav = ({
                     <>
                       <div className="flex items-center gap-x-2">
                         <User size={20} />
-                        <span>Profile</span>
+                        <span>Perfil</span>
                       </div>
                       <ChevronDown className="transform -rotate-90" />
                     </>
@@ -69,7 +69,7 @@ const AccountNav = ({
                     <>
                       <div className="flex items-center gap-x-2">
                         <MapPin size={20} />
-                        <span>Addresses</span>
+                        <span>Endereços</span>
                       </div>
                       <ChevronDown className="transform -rotate-90" />
                     </>
@@ -83,7 +83,7 @@ const AccountNav = ({
                   >
                     <div className="flex items-center gap-x-2">
                       <Package size={20} />
-                      <span>Orders</span>
+                      <span>Pedidos</span>
                     </div>
                     <ChevronDown className="transform -rotate-90" />
                   </LocalizedClientLink>
@@ -129,7 +129,7 @@ const AccountNav = ({
                   route={route!}
                   data-testid="profile-link"
                 >
-                  Profile
+                  Perfil
                 </AccountNavLink>
               </li>
               <li>
@@ -138,7 +138,7 @@ const AccountNav = ({
                   route={route!}
                   data-testid="addresses-link"
                 >
-                  Addresses
+                  Endereços
                 </AccountNavLink>
               </li>
               <li>
@@ -147,7 +147,7 @@ const AccountNav = ({
                   route={route!}
                   data-testid="orders-link"
                 >
-                  Orders
+                  Pedidos
                 </AccountNavLink>
               </li>
               <li className="text-grey-700">
