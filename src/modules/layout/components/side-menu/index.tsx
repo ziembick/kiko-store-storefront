@@ -11,10 +11,10 @@ import CountrySelect from "../country-select"
 
 const SideMenuItems = {
   Home: "/",
-  Store: "/store",
-  Search: "/search",
-  Account: "/account",
-  Cart: "/cart",
+  Loja: "/store",
+  Busca: "/search",
+  Conta: "/account",
+  Carrinho: "/cart",
 }
 
 const SideMenu = ({ regions }: { regions: Region[] | null }) => {
@@ -85,8 +85,7 @@ const SideMenu = ({ regions }: { regions: Region[] | null }) => {
                         />
                       </div>
                       <Text className="flex justify-between txt-compact-small">
-                        © {new Date().getFullYear()} Medusa Store. All rights
-                        reserved.
+                        © {new Date().getFullYear()} Kiko Store. Todos os direitos reservados.
                       </Text>
                     </div>
                   </div>
