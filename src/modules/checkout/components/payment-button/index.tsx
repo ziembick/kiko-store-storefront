@@ -6,6 +6,7 @@ import { OnApproveActions, OnApproveData } from "@paypal/paypal-js"
 import { PayPalButtons, usePayPalScriptReducer } from "@paypal/react-paypal-js"
 import { useElements, useStripe } from "@stripe/react-stripe-js"
 import { placeOrder } from "@modules/checkout/actions"
+import { useMercadopago } from "react-sdk-mercadopago";
 import React, { useState } from "react"
 import ErrorMessage from "../error-message"
 import Spinner from "@modules/common/icons/spinner"
@@ -58,10 +59,69 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
           data-testid={dataTestId}
         />
       )
+    case "mercadopago":
+      return (
+        <MercadoPagoPaymentButton
+          notReady={notReady}
+          session={paymentSession}
+          data-testid={dataTestId}
+        />
+      )
     default:
-      return <Button disabled>Select a payment method</Button>
+      return <Button disabled>Selecione o método de pagamento</Button>
   }
 }
+
+const MercadoPagoPaymentButton = ({
+  session,
+  notReady,
+  "data-testid": dataTestId,
+}: {
+  session: PaymentSession;
+  notReady: boolean;
+  "data-testid"?: string;
+}) => {
+  const [submitting, setSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const MERCADOPAGO_PUBLIC_KEY = process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY || "";
+
+
+  const mercadoPago = useMercadopago.v2(MERCADOPAGO_PUBLIC_KEY, {
+    locale: "pt-BR",
+  });
+
+  const checkout = mercadoPago?.checkout({
+    preference: {
+      id: session.data.preferenceId, // Use o preferenceId obtido do backend
+    },
+  });
+
+  const handlePayment = () => {
+    setSubmitting(true);
+    checkout.open().then(() => {
+      placeOrder().catch(() => {
+        setErrorMessage("Ocorreu um erro, por favor, tente novamente.");
+        setSubmitting(false);
+      });
+    });
+  };
+
+  return (
+    <>
+      <Button
+        disabled={notReady}
+        onClick={handlePayment}
+        size="large"
+        isLoading={submitting}
+        data-testid={dataTestId}
+      >
+        Pagar com Mercado Pago
+      </Button>
+      {errorMessage && <ErrorMessage error={errorMessage} />}
+    </>
+  );
+};
+
 
 const GiftCardPaymentButton = () => {
   const [submitting, setSubmitting] = useState(false)
@@ -77,7 +137,7 @@ const GiftCardPaymentButton = () => {
       isLoading={submitting}
       data-testid="submit-order-button"
     >
-      Place order
+      Confirmar pedido
     </Button>
   )
 }
