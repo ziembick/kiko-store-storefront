@@ -73,7 +73,7 @@ const MERCADOPAGO_PUBLIC_KEY = process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY ||
 
 const MercadoPagoButton = ({ session }: { session: PaymentSession }) => {
   const mercadoPago = useMercadopago.v2(MERCADOPAGO_PUBLIC_KEY, {
-    locale: "es-PE",
+    locale: "pt-BR",
   });
 
   const checkout = mercadoPago?.checkout({
@@ -84,11 +84,18 @@ const MercadoPagoButton = ({ session }: { session: PaymentSession }) => {
 
   return (
     <Button
-      onClick={() => checkout.open()}
-    >
-      Pagar
-    </Button>
-  );
+  onClick={() => {
+    try {
+      checkout.open();
+    } catch (error) {
+      console.error("Erro ao abrir o checkout:", error);
+      alert("Ocorreu um erro ao iniciar o pagamento. Tente novamente.");
+    }
+  }}
+>
+  Pagar
+</Button>
+  )
 };
 const GiftCardPaymentButton = () => {
   const [submitting, setSubmitting] = useState(false)
