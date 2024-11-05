@@ -61,7 +61,7 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
       )
     case "mercadopago":
       return (
-        <MercadoPagoPaymentButton
+        <MercadoPagoButton
           notReady={notReady}
           session={paymentSession}
           data-testid={dataTestId}
@@ -72,56 +72,28 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
   }
 }
 
-const MercadoPagoPaymentButton = ({
-  session,
-  notReady,
-  "data-testid": dataTestId,
-}: {
-  session: PaymentSession;
-  notReady: boolean;
-  "data-testid"?: string;
-}) => {
-  const [submitting, setSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const MERCADOPAGO_PUBLIC_KEY = process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY || "";
+const MERCADOPAGO_PUBLIC_KEY = process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY || "";
 
-
+const MercadoPagoButton = ({ session }: { session: PaymentSession, notReady: boolean }) => {
   const mercadoPago = useMercadopago.v2(MERCADOPAGO_PUBLIC_KEY, {
-    locale: "pt-BR",
+    locale: "es-PE",
   });
 
   const checkout = mercadoPago?.checkout({
     preference: {
-      id: session.data.preferenceId, // Use o preferenceId obtido do backend
+      id: session.data.preferenceId, //preference ID
     },
   });
 
-  const handlePayment = () => {
-    setSubmitting(true);
-    checkout.open().then(() => {
-      placeOrder().catch(() => {
-        setErrorMessage("Ocorreu um erro, por favor, tente novamente.");
-        setSubmitting(false);
-      });
-    });
-  };
-
   return (
-    <>
-      <Button
-        disabled={notReady}
-        onClick={handlePayment}
-        size="large"
-        isLoading={submitting}
-        data-testid={dataTestId}
-      >
-        Pagar com Mercado Pago
-      </Button>
-      {errorMessage && <ErrorMessage error={errorMessage} />}
-    </>
+    <Button
+
+      onClick={() => checkout.open()}
+    >
+      Pagar
+    </Button>
   );
 };
-
 
 const GiftCardPaymentButton = () => {
   const [submitting, setSubmitting] = useState(false)
