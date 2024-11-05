@@ -91,7 +91,7 @@ const MercadoPagoButton = ({
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   const mercadoPago = useMercadopago.v2(MERCADOPAGO_PUBLIC_KEY, {
-    locale: "pt-BR",
+    locale: "es-PE"
   })
 
   const checkout = mercadoPago?.checkout({
