@@ -6,7 +6,7 @@ import { OnApproveActions, OnApproveData } from "@paypal/paypal-js"
 import { PayPalButtons, usePayPalScriptReducer } from "@paypal/react-paypal-js"
 import { useElements, useStripe } from "@stripe/react-stripe-js"
 import { placeOrder } from "@modules/checkout/actions"
-import { useMercadopago } from "react-sdk-mercadopago";
+import { useMercadopago } from "react-sdk-mercadopago"
 import React, { useState } from "react"
 import ErrorMessage from "../error-message"
 import Spinner from "@modules/common/icons/spinner"
@@ -64,6 +64,7 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
         <MercadoPagoButton
           notReady={notReady}
           session={paymentSession}
+          cart={cart}
           data-testid={dataTestId}
         />
       )
@@ -72,28 +73,58 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
   }
 }
 
-const MERCADOPAGO_PUBLIC_KEY = process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY || "";
+const MERCADOPAGO_PUBLIC_KEY =
+  process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY || ""
 
-const MercadoPagoButton = ({ session }: { session: PaymentSession, notReady: boolean }) => {
+const MercadoPagoButton = ({
+  session,
+  notReady,
+  cart,
+  "data-testid": dataTestId,
+}: {
+  session: PaymentSession
+  notReady: boolean
+  cart: Omit<Cart, "refundable_amount" | "refunded_total">
+  "data-testid"?: string
+}) => {
+  const [submitting, setSubmitting] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+
   const mercadoPago = useMercadopago.v2(MERCADOPAGO_PUBLIC_KEY, {
-    locale: "es-PE",
-  });
+    locale: "pt-BR",
+  })
 
   const checkout = mercadoPago?.checkout({
     preference: {
-      id: session.data.preferenceId, //preference ID
+      id: session.data.preferenceId, // Utilize o preferenceId obtido do backend
     },
-  });
+  })
+
+  const handlePayment = () => {
+    setSubmitting(true)
+    checkout.open().then(() => {
+      placeOrder().catch(() => {
+        setErrorMessage("Ocorreu um erro, por favor, tente novamente.")
+        setSubmitting(false)
+      })
+    })
+  }
 
   return (
-    <Button
-
-      onClick={() => checkout.open()}
-    >
-      Pagar
-    </Button>
-  );
-};
+    <>
+      <Button
+        disabled={notReady || submitting}
+        onClick={handlePayment}
+        size="large"
+        isLoading={submitting}
+        data-testid={dataTestId}
+      >
+        Pagar com Mercado Pago
+      </Button>
+      {errorMessage && <ErrorMessage error={errorMessage} />}
+    </>
+  )
+}
 
 const GiftCardPaymentButton = () => {
   const [submitting, setSubmitting] = useState(false)
