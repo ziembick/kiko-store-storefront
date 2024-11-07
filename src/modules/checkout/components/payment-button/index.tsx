@@ -72,40 +72,20 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
 const MERCADOPAGO_PUBLIC_KEY = process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY || "";
 
 
-interface PagoBtnProps {
-  session: PaymentSession;
-}
-
-const MercadoPagoButton = ({ session }: PagoBtnProps) => {
+const MercadoPagoButton = ({ session }: { session: PaymentSession }) => {
   const mercadoPago = useMercadopago.v2(MERCADOPAGO_PUBLIC_KEY, {
-    locale: "pt-BR",
+    locale: "es-PE",
   });
 
   const checkout = mercadoPago?.checkout({
     preference: {
-      id: session.data.preferenceId, // preference ID
+      id: session.data.preferenceId, //preference ID
     },
   });
 
-  // Verifique se o preferenceId está definido e é válido
-  console.log("Preference ID:", session.data.preferenceId);
-
   return (
     <Button
-      onClick={() => {
-        console.log("Preference ID:", session.data.preferenceId);
-        if (session.data.preferenceId) {
-          try {
-            checkout.open();
-          } catch (error) {
-            console.error("Erro ao abrir o checkout:", error);
-            alert("Ocorreu um erro ao iniciar o pagamento. Tente novamente.");
-          }
-        } else {
-          console.error("Preference ID não encontrado ou inválido.");
-          alert("Erro ao iniciar o pagamento: ID de preferência não encontrado.");
-        }
-      }}
+      onClick={() => checkout.open()}
     >
       Pagar
     </Button>
