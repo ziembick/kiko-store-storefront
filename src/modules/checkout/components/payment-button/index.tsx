@@ -61,7 +61,7 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
       )
     case "mercadopago":
       return (
-        <MercadoPagoButton session={paymentSession}/>
+        <MercadoPagoButton session={paymentSession} cartId={cart.id}/>
       )
     default:
       return <Button disabled>Selecione o método de pagamento</Button>
@@ -71,15 +71,26 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
 
 const MERCADOPAGO_PUBLIC_KEY = process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY || "";
 
-const MercadoPagoButton = ({ session }: { session: PaymentSession }) => {
+
+interface PagoBtnProps {
+  session: PaymentSession;
+  cartId: string;
+}
+
+const MercadoPagoButton = ({ session, cartId }: PagoBtnProps) => {
   const mercadoPago = useMercadopago.v2(MERCADOPAGO_PUBLIC_KEY, {
     locale: "pt-BR",
   });
+
+  const successBackUrl = process.env.MERCADOPAGO_SUCCESS_BACKURL?.replace("{cartId}", cartId)
 
   const checkout = mercadoPago?.checkout({
     preference: {
       id: session.data.preferenceId, //preference ID
     },
+    back_urls: {
+      success: successBackUrl,
+    }
   });
 
   return (
@@ -97,6 +108,7 @@ const MercadoPagoButton = ({ session }: { session: PaymentSession }) => {
 </Button>
   )
 };
+
 const GiftCardPaymentButton = () => {
   const [submitting, setSubmitting] = useState(false)
 
