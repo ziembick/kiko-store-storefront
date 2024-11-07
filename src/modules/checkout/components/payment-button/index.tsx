@@ -59,37 +59,37 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
           data-testid={dataTestId}
         />
       )
-    case "mercadopago":
-      return (
-        <MercadoPagoButton session={paymentSession}/>
-      )
+    // case "mercadopago":
+    //   return (
+    //     <MercadoPagoButton session={paymentSession}/>
+    //   )
     default:
       return <Button disabled>Selecione o método de pagamento</Button>
   }
 }
 
 
-const MERCADOPAGO_PUBLIC_KEY = process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY || "";
+// const MERCADOPAGO_PUBLIC_KEY = process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY || "";
 
-const MercadoPagoButton = ({ session }: { session: PaymentSession }) => {
-  const mercadoPago = useMercadopago.v2(MERCADOPAGO_PUBLIC_KEY, {
-    locale: "pt-BR",
-  });
+// const MercadoPagoButton = ({ session }: { session: PaymentSession }) => {
+//   const mercadoPago = useMercadopago.v2(MERCADOPAGO_PUBLIC_KEY, {
+//     locale: "pt-BR",
+//   });
 
-  const checkout = mercadoPago?.checkout({
-    preference: {
-      id: session.data.preferenceId, //preference ID
-    },
-  });
+//   const checkout = mercadoPago?.checkout({
+//     preference: {
+//       id: session.data.preferenceId, //preference ID
+//     },
+//   });
 
-  return (
-    <Button
-      onClick={() => checkout.open()}
-    >
-      Pagar
-    </Button>
-  );
-};
+//   return (
+//     <Button
+//       onClick={() => checkout.open()}
+//     >
+//       Pagar
+//     </Button>
+//   );
+// };
 
 
 const GiftCardPaymentButton = () => {
