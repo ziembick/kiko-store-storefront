@@ -69,29 +69,27 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
 }
 
 
-const MERCADOPAGO_PUBLIC_KEY = process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY || '';
+const MERCADOPAGO_PUBLIC_KEY = process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY || "";
 
-const MercadoPagoButton = ({ preferenceId }: any) => {
-    const mercadoPago = useMercadopago.v2(MERCADOPAGO_PUBLIC_KEY, {
-        locale: 'pt-BR'
-    });
+const MercadoPagoButton = ({ session }: { session: PaymentSession }) => {
+  const mercadoPago = useMercadopago.v2(MERCADOPAGO_PUBLIC_KEY, {
+    locale: "pt-BR",
+  });
 
-    useEffect(() => {
-        if (mercadoPago && preferenceId) {
-            mercadoPago.checkout({
-                preference: {
-                    id: preferenceId // Passe o ID de preferência aqui
-                },
-                render: {
-                    container: '.cho-container', // CSS selector onde o botão será renderizado
-                    label: 'Pagar', // Texto do botão
-                }
-            });
-        }
-    }, [mercadoPago, preferenceId]);
+  const checkout = mercadoPago?.checkout({
+    preference: {
+      id: session.data.preferenceId, //preference ID
+    },
+  });
 
-    return <div className="cho-container" />;
-}
+  return (
+    <Button
+      onClick={() => checkout.open()}
+    >
+      Pagar
+    </Button>
+  );
+};
 
 
 const GiftCardPaymentButton = () => {
