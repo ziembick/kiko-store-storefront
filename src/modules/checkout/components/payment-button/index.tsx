@@ -7,7 +7,7 @@ import { PayPalButtons, usePayPalScriptReducer } from "@paypal/react-paypal-js"
 import { useElements, useStripe } from "@stripe/react-stripe-js"
 import { placeOrder } from "@modules/checkout/actions"
 import { useMercadopago } from "react-sdk-mercadopago"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import ErrorMessage from "../error-message"
 import Spinner from "@modules/common/icons/spinner"
 
@@ -69,28 +69,29 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
 }
 
 
-const MERCADOPAGO_PUBLIC_KEY = process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY || "";
+const MERCADOPAGO_PUBLIC_KEY = process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY || '';
 
+const MercadoPagoButton = ({ preferenceId }: any) => {
+    const mercadoPago = useMercadopago.v2(MERCADOPAGO_PUBLIC_KEY, {
+        locale: 'pt-BR'
+    });
 
-const MercadoPagoButton = ({ session }: { session: PaymentSession }) => {
-  const mercadoPago = useMercadopago.v2(MERCADOPAGO_PUBLIC_KEY, {
-    locale: "es-PE",
-  });
+    useEffect(() => {
+        if (mercadoPago && preferenceId) {
+            mercadoPago.checkout({
+                preference: {
+                    id: preferenceId // Passe o ID de preferência aqui
+                },
+                render: {
+                    container: '.cho-container', // CSS selector onde o botão será renderizado
+                    label: 'Pagar', // Texto do botão
+                }
+            });
+        }
+    }, [mercadoPago, preferenceId]);
 
-  const checkout = mercadoPago?.checkout({
-    preference: {
-      id: session.data.preferenceId, //preference ID
-    },
-  });
-
-  return (
-    <Button
-      onClick={() => checkout.open()}
-    >
-      Pagar
-    </Button>
-  );
-};
+    return <div className="cho-container" />;
+}
 
 
 const GiftCardPaymentButton = () => {
