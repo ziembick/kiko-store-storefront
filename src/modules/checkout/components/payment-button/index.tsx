@@ -10,6 +10,7 @@ import { useMercadopago } from "react-sdk-mercadopago"
 import React, { useEffect, useState } from "react"
 import ErrorMessage from "../error-message"
 import Spinner from "@modules/common/icons/spinner"
+import MercadoPagoButton from "./MercadoPago"
 
 type PaymentButtonProps = {
   cart: Omit<Cart, "refundable_amount" | "refunded_total">
@@ -59,38 +60,13 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
           data-testid={dataTestId}
         />
       )
-    // case "mercadopago":
-    //   return (
-    //     <MercadoPagoButton session={paymentSession}/>
-    //   )
+    case "mercadopago":
+      const preferenceId = paymentSession.data.preferenceId as string
+      return <MercadoPagoButton preferenceId={preferenceId} />
     default:
       return <Button disabled>Selecione o método de pagamento</Button>
   }
 }
-
-
-// const MERCADOPAGO_PUBLIC_KEY = process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY || "";
-
-// const MercadoPagoButton = ({ session }: { session: PaymentSession }) => {
-//   const mercadoPago = useMercadopago.v2(MERCADOPAGO_PUBLIC_KEY, {
-//     locale: "pt-BR",
-//   });
-
-//   const checkout = mercadoPago?.checkout({
-//     preference: {
-//       id: session.data.preferenceId, //preference ID
-//     },
-//   });
-
-//   return (
-//     <Button
-//       onClick={() => checkout.open()}
-//     >
-//       Pagar
-//     </Button>
-//   );
-// };
-
 
 const GiftCardPaymentButton = () => {
   const [submitting, setSubmitting] = useState(false)
