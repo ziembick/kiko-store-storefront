@@ -6,7 +6,7 @@ import { OnApproveActions, OnApproveData } from "@paypal/paypal-js"
 import { PayPalButtons, usePayPalScriptReducer } from "@paypal/react-paypal-js"
 import { useElements, useStripe } from "@stripe/react-stripe-js"
 import { placeOrder } from "@modules/checkout/actions"
-import React, { useEffect, useState } from "react"
+import React, { Suspense, useEffect, useState } from "react"
 import ErrorMessage from "../error-message"
 import Spinner from "@modules/common/icons/spinner"
 import MercadoPagoButton from "./MercadoPago"
@@ -59,10 +59,22 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
           data-testid={dataTestId}
         />
       )
-    case "mercadopago":
-      return (
-        <MercadoPagoButton session={paymentSession}/>
-      )
+      case "mercadopago":
+        if (paymentSession.data?.preferenceId) {
+          return (
+            <Suspense fallback={<Spinner />}>
+              <MercadoPagoButton
+                session={paymentSession}
+                notReady={notReady}
+                dataTestId={dataTestId}
+              />
+            </Suspense>
+          );
+        } else {
+          return (
+            <ErrorMessage error="Erro: preferenceId não encontrado para Mercado Pago." />
+          );
+        }
     default:
       return <Button disabled>Selecione o método de pagamento</Button>
   }
