@@ -9,6 +9,7 @@ import { placeOrder } from "@modules/checkout/actions"
 import React, { useEffect, useState } from "react"
 import ErrorMessage from "../error-message"
 import Spinner from "@modules/common/icons/spinner"
+import MercadoPagoButton from "./MercadoPago"
 
 type PaymentButtonProps = {
   cart: Omit<Cart, "refundable_amount" | "refunded_total">
@@ -58,10 +59,10 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
           data-testid={dataTestId}
         />
       )
-    // case "mercadopago":
-    //   return (
-    //     <MercadoPagoButton session={paymentSession}/>
-    //   )
+    case "mercadopago":
+      return (
+        <MercadoPagoButton session={paymentSession}/>
+      )
     default:
       return <Button disabled>Selecione o método de pagamento</Button>
   }
