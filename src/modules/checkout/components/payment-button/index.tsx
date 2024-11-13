@@ -6,10 +6,10 @@ import { OnApproveActions, OnApproveData } from "@paypal/paypal-js"
 import { PayPalButtons, usePayPalScriptReducer } from "@paypal/react-paypal-js"
 import { useElements, useStripe } from "@stripe/react-stripe-js"
 import { placeOrder } from "@modules/checkout/actions"
-import React, { Suspense, useEffect, useState } from "react"
+import React, { useEffect, useState } from "react"
 import ErrorMessage from "../error-message"
 import Spinner from "@modules/common/icons/spinner"
-import MercadoPagoButton from "./MercadoPago"
+import { useMercadopago } from "react-sdk-mercadopago"
 
 type PaymentButtonProps = {
   cart: Omit<Cart, "refundable_amount" | "refunded_total">
@@ -59,49 +59,47 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
           data-testid={dataTestId}
         />
       )
-      case "mercadopago":
-        if (paymentSession.data?.preferenceId) {
-          return (
-            <Suspense fallback={<Spinner />}>
-              <MercadoPagoButton
-                session={paymentSession}
-                notReady={notReady}
-                dataTestId={dataTestId}
-              />
-            </Suspense>
-          );
-        } else {
-          return (
-            <ErrorMessage error="Erro: preferenceId não encontrado para Mercado Pago." />
-          );
-        }
+    case "mercadopago":
+      return (
+        <MercadoPagoButton session={paymentSession} notReady={false}/>
+      )
     default:
       return <Button disabled>Selecione o método de pagamento</Button>
   }
 }
 
 
-// const MERCADOPAGO_PUBLIC_KEY = process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY || "";
+const MERCADOPAGO_PUBLIC_KEY = process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY || "";
 
-// const MercadoPagoButton = ({ session }: { session: PaymentSession }) => {
-//   const mercadoPago = useMercadopago.v2(MERCADOPAGO_PUBLIC_KEY, {
-//     locale: "pt-BR",
-//   });
+const MercadoPagoButton = ({
+  session,
+  notReady,
+}: {
+  session: PaymentSession;
+  notReady: boolean
+}) => {
+  const [submitting, setSubmitting] = useState(false)
+  const mercadoPago = useMercadopago.v2(MERCADOPAGO_PUBLIC_KEY, {
+    locale: 'pt-BR'
+  })
 
-//   const checkout = mercadoPago?.checkout({
-//     preference: {
-//       id: session.data.preferenceId, //preference ID
-//     },
-//   });
+  const checkout = mercadoPago?.checkout({
+    preference: {
+      id: session.data.preferenceId
+    }
+  })
 
-//   return (
-//     <Button
-//       onClick={() => checkout.open()}
-//     >
-//       Pagar
-//     </Button>
-//   );
-// };
+  const handleClick = () => {
+    checkout.open()
+    setSubmitting(true)
+  }
+
+  return (
+    <Button disabled={notReady || submitting} onClick={handleClick}>
+      Pagar
+    </Button>
+  )
+}
 
 
 const GiftCardPaymentButton = () => {
