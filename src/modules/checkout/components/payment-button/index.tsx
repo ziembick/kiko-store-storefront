@@ -9,7 +9,7 @@ import { placeOrder } from "@modules/checkout/actions"
 import React, { useEffect, useState } from "react"
 import ErrorMessage from "../error-message"
 import Spinner from "@modules/common/icons/spinner"
-import { useMercadopago } from "react-sdk-mercadopago"
+// import { useMercadopago } from "react-sdk-mercadopago"
 
 type PaymentButtonProps = {
   cart: Omit<Cart, "refundable_amount" | "refunded_total">
@@ -59,47 +59,92 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
           data-testid={dataTestId}
         />
       )
-    case "mercadopago":
-      return (
-        <MercadoPagoButton session={paymentSession} notReady={false}/>
-      )
+      // case "mercadopago":
+      //   return (
+      //     <MercadoPagoButton
+      //       session={paymentSession}
+      //       notReady={notReady}
+      //       data-testid={dataTestId}
+      //     />
+      //   );
     default:
       return <Button disabled>Selecione o método de pagamento</Button>
   }
 }
 
+// const MercadoPagoButton = ({
+//   session,
+//   notReady,
+//   "data-testid": dataTestId,
+// }: {
+//   session: PaymentSession;
+//   notReady: boolean;
+//   "data-testid"?: string;
+// }) => {
+//   const [submitting, setSubmitting] = useState(false);
 
-const MERCADOPAGO_PUBLIC_KEY = process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY || "";
+//   const handlePayment = async () => {
+//     if (!session?.data?.preferenceId) {
+//       console.error("Preference ID do Mercado Pago não encontrado.");
+//       return;
+//     }
 
-const MercadoPagoButton = ({
-  session,
-  notReady,
-}: {
-  session: PaymentSession;
-  notReady: boolean
-}) => {
-  const [submitting, setSubmitting] = useState(false)
-  const mercadoPago = useMercadopago.v2(MERCADOPAGO_PUBLIC_KEY, {
-    locale: 'pt-BR'
-  })
+//     const preferenceId = session.data.preferenceId as string;
 
-  const checkout = mercadoPago?.checkout({
-    preference: {
-      id: session.data.preferenceId
-    }
-  })
+//     try {
+//       setSubmitting(true);
+//       const mercadoPagoUrl = `https://sandbox.mercadopago.com.br/checkout/v1/redirect?preference-id=${preferenceId}`;
+//       window.location.href = mercadoPagoUrl; // Redireciona para o Mercado Pago
+//     } catch (error) {
+//       console.error("Erro ao redirecionar para o Mercado Pago:", error);
+//     } finally {
+//       setSubmitting(false);
+//     }
+//   };
 
-  const handleClick = () => {
-    checkout.open()
-    setSubmitting(true)
-  }
+//   return (
+//     <Button
+//       disabled={notReady || submitting}
+//       onClick={handlePayment}
+//       isLoading={submitting}
+//       data-testid={dataTestId}
+//     >
+//       Pagar com Mercado Pago
+//     </Button>
+//   );
+// };
 
-  return (
-    <Button disabled={notReady || submitting} onClick={handleClick}>
-      Pagar
-    </Button>
-  )
-}
+// const MERCADOPAGO_PUBLIC_KEY = process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY || "";
+
+// const MercadoPagoButton = ({
+//   session,
+//   notReady,
+// }: {
+//   session: PaymentSession;
+//   notReady: boolean
+// }) => {
+//   const [submitting, setSubmitting] = useState(false)
+//   const mercadoPago = useMercadopago.v2(MERCADOPAGO_PUBLIC_KEY, {
+//     locale: 'pt-BR'
+//   })
+
+//   const checkout = mercadoPago?.checkout({
+//     preference: {
+//       id: session.data.preferenceId
+//     }
+//   })
+
+//   const handleClick = () => {
+//     checkout.open()
+//     setSubmitting(true)
+//   }
+
+//   return (
+//     <Button disabled={notReady || submitting} onClick={handleClick}>
+//       Pagar
+//     </Button>
+//   )
+// }
 
 
 const GiftCardPaymentButton = () => {

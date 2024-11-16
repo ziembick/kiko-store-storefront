@@ -62,6 +62,7 @@ const Payment = ({
 
   const createQueryString = useCallback(
     (name: string, value: string) => {
+      // @ts-ignore
       const params = new URLSearchParams(searchParams)
       params.set(name, value)
 

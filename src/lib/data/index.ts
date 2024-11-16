@@ -153,16 +153,34 @@ export async function deleteDiscount(cartId: string, code: string) {
 }
 
 export async function createPaymentSessions(cartId: string) {
-  const headers = getMedusaHeaders(["cart"])
+  const headers = getMedusaHeaders(["cart"]);
 
   return medusaClient.carts
     .createPaymentSessions(cartId, headers)
-    .then(({ cart }) => cart)
-    .catch((err) => {
-      console.log(err)
-      return null
+    .then(({ cart }) => {
+      // Lógica adicional para capturar o `preferenceId` do Mercado Pago
+      if (cart?.payment_sessions) {
+        const mercadoPagoSession = cart.payment_sessions.find(
+          (session) => session.provider_id === "mercadopago"
+        );
+
+        if (mercadoPagoSession) {
+          const preferenceId = mercadoPagoSession.data?.preferenceId;
+          if (preferenceId) {
+            console.log("Mercado Pago preference ID:", preferenceId);
+            // Você pode armazenar, redirecionar ou usar o preferenceId aqui
+          }
+        }
+      }
+
+      return cart; // Retorna o carrinho atualizado
     })
+    .catch((err) => {
+      console.log(err);
+      return null;
+    });
 }
+
 
 export async function setPaymentSession({
   cartId,
