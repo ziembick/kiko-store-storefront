@@ -61,10 +61,10 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
         />
       )
 
-    case "mercadopago":
-      return (
-        <MercadoPagoButton session={new PaymentSession} />
-      )
+    // case "mercadopago":
+    //   return (
+    //     <MercadoPagoButton session={new PaymentSession} />
+    //   )
     // case "asaas":
     //   return (
     //     <AsaasPaymentButton
@@ -80,27 +80,27 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
 
 
 
-const MERCADOPAGO_PUBLIC_KEY = process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY || "";
+// const MERCADOPAGO_PUBLIC_KEY = process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY || "";
 
-const MercadoPagoButton = ({ session }: { session: PaymentSession }) => {
-  const mercadoPago = useMercadopago.v2(MERCADOPAGO_PUBLIC_KEY, {
-    locale: "es-PE",
-  });
+// const MercadoPagoButton = ({ session }: { session: PaymentSession }) => {
+//   const mercadoPago = useMercadopago.v2(MERCADOPAGO_PUBLIC_KEY, {
+//     locale: "es-PE",
+//   });
 
-  const checkout = mercadoPago?.checkout({
-    preference: {
-      id: session.data.preferenceId, //preference ID
-    },
-  });
+//   const checkout = mercadoPago?.checkout({
+//     preference: {
+//       id: session.data.preferenceId, //preference ID
+//     },
+//   });
 
-  return (
-    <Button
-      onClick={() => checkout.open()}
-    >
-      Pagar
-    </Button>
-  );
-};
+//   return (
+//     <Button
+//       onClick={() => checkout.open()}
+//     >
+//       Pagar
+//     </Button>
+//   );
+// };
 
 // const AsaasPaymentButton = ({
 //   cart,
