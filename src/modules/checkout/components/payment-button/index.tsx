@@ -10,6 +10,7 @@ import React, { useEffect, useState } from "react"
 import ErrorMessage from "../error-message"
 import Spinner from "@modules/common/icons/spinner"
 // import { useMercadopago } from "react-sdk-mercadopago"
+import { useMercadopago } from "react-sdk-mercadopago";
 
 type PaymentButtonProps = {
   cart: Omit<Cart, "refundable_amount" | "refunded_total">
@@ -59,18 +60,125 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
           data-testid={dataTestId}
         />
       )
-      // case "mercadopago":
-      //   return (
-      //     <MercadoPagoButton
-      //       session={paymentSession}
-      //       notReady={notReady}
-      //       data-testid={dataTestId}
-      //     />
-      //   );
+
+    case "mercadopago":
+      return (
+        <MercadoPagoButton session={new PaymentSession} />
+      )
+    // case "asaas":
+    //   return (
+    //     <AsaasPaymentButton
+    //       notReady={notReady}
+    //       cart={cart}
+    //       data-testid={dataTestId}
+    //     />
+    //   )
     default:
       return <Button disabled>Selecione o método de pagamento</Button>
   }
 }
+
+
+
+const MERCADOPAGO_PUBLIC_KEY = process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY || "";
+
+const MercadoPagoButton = ({ session }: { session: PaymentSession }) => {
+  const mercadoPago = useMercadopago.v2(MERCADOPAGO_PUBLIC_KEY, {
+    locale: "es-PE",
+  });
+
+  const checkout = mercadoPago?.checkout({
+    preference: {
+      id: session.data.preferenceId, //preference ID
+    },
+  });
+
+  return (
+    <Button
+      onClick={() => checkout.open()}
+    >
+      Pagar
+    </Button>
+  );
+};
+
+// const AsaasPaymentButton = ({
+//   cart,
+//   notReady,
+//   "data-testid": dataTestId,
+// }: {
+//   cart: Omit<Cart, "refundable_amount" | "refunded_total">
+//   notReady: boolean
+//   "data-testid"?: string
+// }) => {
+//   const [submitting, setSubmitting] = useState(false)
+
+//   const handlePayment = async () => {
+//     setSubmitting(true)
+
+//     try {
+//       // Criar a sessão de pagamento no backend
+//       const paymentSessionResponse = await fetch(
+//         `${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL}/store/carts/${cart.id}/payment-session`,
+//         {
+//           method: "POST",
+//           headers: {
+//             "Content-Type": "application/json",
+//           },
+//           body: JSON.stringify({
+//             provider_id: "asaas", // Certifique-se de que o ID do provedor corresponde ao backend
+//           }),
+//         }
+//       )
+
+//       if (!paymentSessionResponse.ok) {
+//         throw new Error("Falha ao criar a sessão de pagamento.")
+//       }
+
+//       const session = await paymentSessionResponse.json()
+
+//       console.log("Sessão de pagamento criada:", session)
+
+//       // Completar o pagamento
+//       const completeCartResponse = await fetch(
+//         `${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL}/store/carts/${cart.id}/complete`,
+//         {
+//           method: "POST",
+//           headers: {
+//             "Content-Type": "application/json",
+//           },
+//         }
+//       )
+
+//       const { type, order, error } = await completeCartResponse.json()
+
+//       if (type === "order" && order) {
+//         alert("Pedido realizado com sucesso.")
+//         console.log(order)
+//         // Atualize o carrinho
+//         window.location.reload()
+//       } else {
+//         console.error("Erro ao completar o pedido:", error)
+//         alert("Falha ao completar o pedido.")
+//       }
+//     } catch (error) {
+//       console.error("Erro no fluxo de pagamento:", error)
+//     }
+
+//     setSubmitting(false)
+//   }
+
+//   return (
+//     <Button
+//       disabled={notReady || submitting}
+//       onClick={handlePayment}
+//       isLoading={submitting}
+//       data-testid={dataTestId}
+//     >
+//       Pagar com Asaas
+//     </Button>
+//   )
+// }
 
 // const MercadoPagoButton = ({
 //   session,
@@ -145,7 +253,6 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
 //     </Button>
 //   )
 // }
-
 
 const GiftCardPaymentButton = () => {
   const [submitting, setSubmitting] = useState(false)
