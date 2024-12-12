@@ -63,15 +63,7 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
 
     // case "mercadopago":
     //   return (
-    //     <MercadoPagoButton session={new PaymentSession} />
-    //   )
-    // case "asaas":
-    //   return (
-    //     <AsaasPaymentButton
-    //       notReady={notReady}
-    //       cart={cart}
-    //       data-testid={dataTestId}
-    //     />
+    //     <MercadoPagoButton session={}/>
     //   )
     default:
       return <Button disabled>Selecione o método de pagamento</Button>
@@ -102,83 +94,7 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
 //   );
 // };
 
-// const AsaasPaymentButton = ({
-//   cart,
-//   notReady,
-//   "data-testid": dataTestId,
-// }: {
-//   cart: Omit<Cart, "refundable_amount" | "refunded_total">
-//   notReady: boolean
-//   "data-testid"?: string
-// }) => {
-//   const [submitting, setSubmitting] = useState(false)
 
-//   const handlePayment = async () => {
-//     setSubmitting(true)
-
-//     try {
-//       // Criar a sessão de pagamento no backend
-//       const paymentSessionResponse = await fetch(
-//         `${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL}/store/carts/${cart.id}/payment-session`,
-//         {
-//           method: "POST",
-//           headers: {
-//             "Content-Type": "application/json",
-//           },
-//           body: JSON.stringify({
-//             provider_id: "asaas", // Certifique-se de que o ID do provedor corresponde ao backend
-//           }),
-//         }
-//       )
-
-//       if (!paymentSessionResponse.ok) {
-//         throw new Error("Falha ao criar a sessão de pagamento.")
-//       }
-
-//       const session = await paymentSessionResponse.json()
-
-//       console.log("Sessão de pagamento criada:", session)
-
-//       // Completar o pagamento
-//       const completeCartResponse = await fetch(
-//         `${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL}/store/carts/${cart.id}/complete`,
-//         {
-//           method: "POST",
-//           headers: {
-//             "Content-Type": "application/json",
-//           },
-//         }
-//       )
-
-//       const { type, order, error } = await completeCartResponse.json()
-
-//       if (type === "order" && order) {
-//         alert("Pedido realizado com sucesso.")
-//         console.log(order)
-//         // Atualize o carrinho
-//         window.location.reload()
-//       } else {
-//         console.error("Erro ao completar o pedido:", error)
-//         alert("Falha ao completar o pedido.")
-//       }
-//     } catch (error) {
-//       console.error("Erro no fluxo de pagamento:", error)
-//     }
-
-//     setSubmitting(false)
-//   }
-
-//   return (
-//     <Button
-//       disabled={notReady || submitting}
-//       onClick={handlePayment}
-//       isLoading={submitting}
-//       data-testid={dataTestId}
-//     >
-//       Pagar com Asaas
-//     </Button>
-//   )
-// }
 
 // const MercadoPagoButton = ({
 //   session,
