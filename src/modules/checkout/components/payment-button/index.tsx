@@ -61,6 +61,15 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
         />
       )
 
+    case "pag-bank-payment":
+      return (
+        <PagBankPaymentButton
+          notReady={notReady}
+          cart={cart}
+          data-testid={dataTestId}
+        />
+      )
+
     // case "mercadopago":
     //   return (
     //     <MercadoPagoButton session={}/>
@@ -70,7 +79,30 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
   }
 }
 
+const PagBankPaymentButton = ({
+  cart,
+  notReady,
+  "data-testid": dataTestId,
+}: {
+  cart: Omit<Cart, "refundable_amount" | "refunded_total">
+  notReady: boolean
+  "data-testid"?: string
+}) => {
+  // redirect to pagbank
+  const session = cart.payment_session as PaymentSession
+  const pagbankUrl = session.data.payment_url as string
 
+  return (
+    <Button
+      size="large"
+      onClick={() => (window.location.href = pagbankUrl)}
+      disabled={notReady}
+      data-testid={dataTestId}
+    >
+      Pagar com PagBank
+    </Button>
+  )
+}
 
 // const MERCADOPAGO_PUBLIC_KEY = process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY || "";
 
@@ -93,8 +125,6 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
 //     </Button>
 //   );
 // };
-
-
 
 // const MercadoPagoButton = ({
 //   session,
