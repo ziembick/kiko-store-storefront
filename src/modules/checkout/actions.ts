@@ -184,8 +184,10 @@ export async function setPaymentMethod(providerId: string) {
   }
 }
 
-export async function placeOrder() {
-  const cartId = cookies().get("_medusa_cart_id")?.value
+export async function placeOrder(cartId?: string) {
+  if (!cartId) {
+    cartId = cookies().get("_medusa_cart_id")?.value
+  }
 
   if (!cartId) throw new Error("No cartId cookie found")
 
