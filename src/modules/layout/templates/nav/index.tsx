@@ -4,6 +4,7 @@ import { listRegions } from "@lib/data"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import CartButton from "@modules/layout/components/cart-button"
 import SideMenu from "@modules/layout/components/side-menu"
+import Scene from "@modules/layout/components/three-js/Scene"
 
 export default async function Nav() {
   const regions = await listRegions().then((regions) => regions)
@@ -24,7 +25,11 @@ export default async function Nav() {
               className="txt-compact-xlarge-plus hover:text-ui-fg-base uppercase"
               data-testid="nav-store-link"
             >
-              Kiko Store
+              <span className="relative inline-block">
+                {" "}
+                {/* Evita erro de HTML inválido */}
+                <Scene />
+              </span>
             </LocalizedClientLink>
           </div>
 
