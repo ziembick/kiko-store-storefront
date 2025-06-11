@@ -19,66 +19,65 @@ import { StripeContext } from "@modules/checkout/components/payment-wrapper"
 
 
 const ModalFrete = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) => {
-  if (!isOpen) return null
-
   const [resultado, setResultado] = useState<{
     distanciaKm: string
     pesoGramas: number
     custoFrete: string
   } | null>(null)
 
-  // Pegando o endereço do cliente do DOM
-  const frete2 = document.querySelector('.shippingAddress2')?.textContent || ""
-  const frete3 = document.querySelector('.shippingAddress3')?.textContent || ""
-  const frete4 = document.querySelector('.shippingAddress4')?.textContent || ""
-  const enderecoEntrega = `${frete2} ${frete3} ${frete4}`.trim()
+  const [enderecoEntrega, setEnderecoEntrega] = useState("")
 
-  // Coordenadas fixas da base operacional
   const baseLat = -23.561684
   const baseLng = -46.655981
+  const peso = 400 // gramas
 
-  // Peso total da compra (em gramas)
-  const peso = 400
+  useEffect(() => {
+    if (isOpen) {
+      const frete2 = document.querySelector('.shippingAddress2')?.textContent || ""
+      const frete3 = document.querySelector('.shippingAddress3')?.textContent || ""
+      const frete4 = document.querySelector('.shippingAddress4')?.textContent || ""
+      const endereco = `${frete2} ${frete3} ${frete4}`.trim()
+      setEnderecoEntrega(endereco)
+    }
+  }, [isOpen])
 
-  async function calcularFrete() {
+  useEffect(() => {
+    if (isOpen && enderecoEntrega && resultado === null) {
+      calcularFrete(enderecoEntrega)
+    }
+  }, [isOpen, enderecoEntrega])
+
+  const calcularFrete = async (endereco: string) => {
     try {
-      // Consulta ao Nominatim para obter coordenadas do endereço
-      const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(enderecoEntrega)}`, {
-        headers: { 'User-Agent': 'frete-ecommerce' }
+      const geoRes = await fetch(`https://api.openrouteservice.org/geocode/search?api_key=5b3ce3597851110001cf6248969ff2efc3034f989870c2bd5cac9c0f&text=${encodeURIComponent(endereco)}`)
+      const geoData = await geoRes.json()
+      if (!geoData.features.length) return
+
+      const destinoLng = geoData.features[0].geometry.coordinates[0]
+      const destinoLat = geoData.features[0].geometry.coordinates[1]
+
+      const rotaRes = await fetch('https://api.openrouteservice.org/v2/directions/driving-car/geojson', {
+        method: 'POST',
+        headers: {
+          'Authorization': '5b3ce3597851110001cf6248969ff2efc3034f989870c2bd5cac9c0f',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          coordinates: [
+            [baseLng, baseLat],
+            [destinoLng, destinoLat]
+          ]
+        })
       })
-      const data = await response.json()
-      if (!data.length) {
-        setResultado(null)
-        return
-      }
 
-      const destinoLat = parseFloat(data[0].lat)
-      const destinoLng = parseFloat(data[0].lon)
-
-      // Cálculo da distância com fórmula de Haversine:
-      const R = 6371 // Raio da Terra em km
-
-      // Converte diferença de latitude para radianos
-      const dLat = (destinoLat - baseLat) * Math.PI / 180
-
-      // Converte diferença de longitude para radianos
-      const dLon = (destinoLng - baseLng) * Math.PI / 180
-
-      // Fórmula de Haversine: calcula o valor de 'a' com base nas diferenças angulares
-      const a =
-        Math.sin(dLat / 2) ** 2 + // seno²(Δlat/2)
-        Math.cos(baseLat * Math.PI / 180) * // cos(lat base em rad)
-        Math.cos(destinoLat * Math.PI / 180) * // cos(lat destino em rad)
-        Math.sin(dLon / 2) ** 2 // seno²(Δlon/2)
-
-      // 'c' é o arco central da esfera (em radianos)
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-
-      // Distância final entre os dois pontos
-      const distanciaKm = R * c
-
-      // Lógica do frete: R$1.5 por km + R$0.01 por grama
+      const rotaData = await rotaRes.json()
+      console.log(rotaData, "rotaData")
+      const distanciaMetros = rotaData.features[0].properties.summary.distance
+      console.log(distanciaMetros, "distanciaMetros")
+      const distanciaKm = distanciaMetros / 1000
+      console.log(distanciaKm, "distanciaKm")
       const custoFrete = (distanciaKm * 1.5) + (peso * 0.01)
+      console.log(custoFrete, "custoFrete")
 
       setResultado({
         distanciaKm: distanciaKm.toFixed(2),
@@ -91,7 +90,7 @@ const ModalFrete = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void 
     }
   }
 
-  calcularFrete()
+  if (!isOpen) return null
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
@@ -116,6 +115,7 @@ const ModalFrete = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void 
     </div>
   )
 }
+
 
 
 
@@ -444,7 +444,7 @@ const Payment = ({
           </Button>
           <Button
             size="large"
-            className="mt-6"
+            className="botaoFrete mt-6"
             onClick={openModalFrete}
             isLoading={isLoading}
           >
