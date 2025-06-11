@@ -108,19 +108,19 @@ const Addresses = ({
                     <Text className="txt-medium-plus text-ui-fg-base mb-1">
                       Endereço de envio
                     </Text>
-                    <Text className="txt-medium text-ui-fg-subtle">
+                    <Text className="shippingAddress txt-medium text-ui-fg-subtle">
                       {cart.shipping_address.first_name}{" "}
                       {cart.shipping_address.last_name}
                     </Text>
-                    <Text className="txt-medium text-ui-fg-subtle">
+                    <Text className="shippingAddress2 txt-medium text-ui-fg-subtle">
                       {cart.shipping_address.address_1}{" "}
                       {cart.shipping_address.address_2}
                     </Text>
-                    <Text className="txt-medium text-ui-fg-subtle">
+                    <Text className="shippingAddress3 txt-medium text-ui-fg-subtle">
                       {cart.shipping_address.postal_code},{" "}
                       {cart.shipping_address.city}
                     </Text>
-                    <Text className="txt-medium text-ui-fg-subtle">
+                    <Text className="shippingAddress4 txt-medium text-ui-fg-subtle">
                       {cart.shipping_address.country_code?.toUpperCase()}
                     </Text>
                   </div>
