@@ -17,6 +17,208 @@ import { setPaymentMethod } from "@modules/checkout/actions"
 import { paymentInfoMap } from "@lib/constants"
 import { StripeContext } from "@modules/checkout/components/payment-wrapper"
 
+
+const ModalFrete = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) => {
+  const [resultado, setResultado] = useState<{
+    distanciaKm: string
+    pesoGramas: number
+    custoFrete: string
+  } | null>(null)
+
+  const [enderecoEntrega, setEnderecoEntrega] = useState("")
+
+  const baseLat = -23.561684
+  const baseLng = -46.655981
+  const peso = 400 // gramas
+
+  useEffect(() => {
+    if (isOpen) {
+      const frete2 = document.querySelector('.shippingAddress2')?.textContent || ""
+      const frete3 = document.querySelector('.shippingAddress3')?.textContent || ""
+      const frete4 = document.querySelector('.shippingAddress4')?.textContent || ""
+      const endereco = `${frete2} ${frete3} ${frete4}`.trim()
+      setEnderecoEntrega(endereco)
+    }
+  }, [isOpen])
+
+  useEffect(() => {
+    if (isOpen && enderecoEntrega && resultado === null) {
+      calcularFrete(enderecoEntrega)
+    }
+  }, [isOpen, enderecoEntrega])
+
+  const calcularFrete = async (endereco: string) => {
+    try {
+      const geoRes = await fetch(`https://api.openrouteservice.org/geocode/search?api_key=5b3ce3597851110001cf6248969ff2efc3034f989870c2bd5cac9c0f&text=${encodeURIComponent(endereco)}`)
+      const geoData = await geoRes.json()
+      if (!geoData.features.length) return
+
+      const destinoLng = geoData.features[0].geometry.coordinates[0]
+      const destinoLat = geoData.features[0].geometry.coordinates[1]
+
+      const rotaRes = await fetch('https://api.openrouteservice.org/v2/directions/driving-car/geojson', {
+        method: 'POST',
+        headers: {
+          'Authorization': '5b3ce3597851110001cf6248969ff2efc3034f989870c2bd5cac9c0f',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          coordinates: [
+            [baseLng, baseLat],
+            [destinoLng, destinoLat]
+          ]
+        })
+      })
+
+      const rotaData = await rotaRes.json()
+      console.log(rotaData, "rotaData")
+      const distanciaMetros = rotaData.features[0].properties.summary.distance
+      console.log(distanciaMetros, "distanciaMetros")
+      const distanciaKm = distanciaMetros / 1000
+      console.log(distanciaKm, "distanciaKm")
+      const custoFrete = (distanciaKm * 1.5) + (peso * 0.01)
+      console.log(custoFrete, "custoFrete")
+
+      setResultado({
+        distanciaKm: distanciaKm.toFixed(2),
+        pesoGramas: peso,
+        custoFrete: custoFrete.toFixed(2)
+      })
+    } catch (error) {
+      console.error("Erro ao calcular frete:", error)
+      setResultado(null)
+    }
+  }
+
+  if (!isOpen) return null
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+      <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full mx-4 relative">
+        <button
+          onClick={onClose}
+          className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl font-bold"
+        >
+          ×
+        </button>
+        <h1 className="text-xl font-bold mb-4">Simulação de Frete</h1>
+        {resultado ? (
+          <div className="space-y-2 text-sm">
+            <p><strong>Distância até o destino:</strong> {resultado.distanciaKm} km</p>
+            <p><strong>Peso do pedido:</strong> {resultado.pesoGramas} g</p>
+            <p><strong>Frete total calculado:</strong> R$ {resultado.custoFrete}</p>
+          </div>
+        ) : (
+          <p>Calculando frete...</p>
+        )}
+      </div>
+    </div>
+  )
+}
+
+
+
+
+
+const Modal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) => {
+  if (!isOpen) return null
+
+  const totalValue = document.querySelector('.totalValue')
+  const total = totalValue?.textContent?.replace('R$', '').replace(',', '.').trim()
+  const valorTotal = total ? parseFloat(total) : 0
+
+  function obterTaxaJuros(valor: number, parcelas: number): number {
+    // Taxa dinâmica baseada no valor e parcelas
+    if (parcelas <= 3) return 0 // Sem juros até 3x
+    
+    // Faixa de valor baixo (até R$ 500)
+    if (valor <= 500) {
+      switch (parcelas) {
+        case 6: return 1.99
+        case 9: return 2.49
+        case 12: return 2.99
+        default: return 3.49
+      }
+    }
+    
+    // Faixa de valor médio (R$ 500 - R$ 1500)
+    if (valor <= 1500) {
+      switch (parcelas) {
+        case 6: return 1.79
+        case 9: return 2.29
+        case 12: return 2.79
+        default: return 3.29
+      }
+    }
+    
+    // Faixa de valor alto (acima de R$ 1500)
+    switch (parcelas) {
+      case 6: return 1.49
+      case 9: return 1.99
+      case 12: return 2.49
+      default: return 2.99
+    }
+  }
+
+  function calcularParcelamentoComJuros(valor: number, parcelas: number, taxaJurosMensal: number) {
+    const i = taxaJurosMensal / 100
+    const parcela = valor * (i / (1 - Math.pow(1 + i, -parcelas)))
+    return parseFloat(parcela.toFixed(2))
+  }
+
+  function handleParcelamento(parcelas: number) {
+    const taxaJuros = obterTaxaJuros(valorTotal, parcelas)
+    
+    const valorParcela = parcelas <= 3
+      ? parseFloat((valorTotal / parcelas).toFixed(2))
+      : calcularParcelamentoComJuros(valorTotal, parcelas, taxaJuros)
+
+    const textoJuros = parcelas <= 3 ? "sem juros" : `com juros de ${taxaJuros}% a.m.`
+    alert(`${parcelas}x de R$ ${valorParcela.toFixed(2)} ${textoJuros}`)
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+      <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full mx-4 relative">
+        <button 
+          onClick={onClose} 
+          className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl font-bold"
+        >
+          ×
+        </button>
+        <h2 className="text-xl font-semibold mb-4">Simulação de Parcelamento</h2>
+                  <div className="space-y-3">
+            <p className="text-gray-600">Valor total: R$ {valorTotal.toFixed(2)}</p>
+            <p className="text-gray-600">Escolha o número de parcelas:</p>
+            <div className="space-y-2">
+              {[1, 2, 3, 6, 9, 12].map((parcela) => {
+                const taxaJuros = obterTaxaJuros(valorTotal, parcela)
+                const valorParcela = parcela <= 3
+                  ? parseFloat((valorTotal / parcela).toFixed(2))
+                  : calcularParcelamentoComJuros(valorTotal, parcela, taxaJuros)
+                
+                return (
+                  <div 
+                    key={parcela}
+                    className="p-3 border rounded hover:bg-gray-50 cursor-pointer flex justify-between items-center"
+                    onClick={() => handleParcelamento(parcela)}
+                  >
+                    <span className="font-medium">{parcela}x de R$ {valorParcela.toFixed(2)}</span>
+                    <span className="text-sm text-gray-500">
+                      {parcela <= 3 ? "sem juros" : `${taxaJuros}% a.m.`}
+                    </span>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+      </div>
+    </div>
+  )
+}
+
+
+
 const Payment = ({
   cart,
 }: {
@@ -26,7 +228,8 @@ const Payment = ({
   const [error, setError] = useState<string | null>(null)
   const [cardBrand, setCardBrand] = useState<string | null>(null)
   const [cardComplete, setCardComplete] = useState(false)
-
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isModalFreteOpen, setIsModalFreteOpen] = useState(false)
   const searchParams = useSearchParams()
   const router = useRouter()
   const pathname = usePathname()
@@ -84,6 +287,23 @@ const Payment = ({
   const handleChange = (providerId: string) => {
     setError(null)
     set(providerId)
+  }
+
+
+  const openModal = () => {
+    setIsModalOpen(true)
+  }
+
+  const closeModal = () => {
+    setIsModalOpen(false)
+  }
+
+  const openModalFrete = () => {
+    setIsModalFreteOpen(true)
+  }
+
+  const closeModalFrete = () => {
+    setIsModalFreteOpen(false)
   }
 
   const handleEdit = () => {
@@ -199,7 +419,8 @@ const Payment = ({
             error={error}
             data-testid="payment-method-error-message"
           />
-
+          <div>
+            
           <Button
             size="large"
             className="mt-6"
@@ -213,6 +434,23 @@ const Payment = ({
           >
             Continue to review
           </Button>
+          <Button
+            size="large"
+            className="mt-6"
+            onClick={openModal}
+            isLoading={isLoading}
+          >
+            Simular Parcelamento
+          </Button>
+          <Button
+            size="large"
+            className="botaoFrete mt-6"
+            onClick={openModalFrete}
+            isLoading={isLoading}
+          >
+            Simular Frete
+          </Button>
+          </div>
         </div>
 
         <div className={isOpen ? "hidden" : "block"}>
@@ -274,6 +512,8 @@ const Payment = ({
         </div>
       </div>
       <Divider className="mt-8" />
+      <Modal isOpen={isModalOpen} onClose={closeModal} />
+      <ModalFrete isOpen={isModalFreteOpen} onClose={closeModalFrete} />
     </div>
   )
 }
