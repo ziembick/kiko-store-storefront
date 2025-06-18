@@ -20,7 +20,7 @@ type ShippingProps = {
   availableShippingMethods: PricedShippingOption[] | null
 }
 
-const ModalFrete = ({ isOpen, onClose, onFreteCalculado }: { isOpen: boolean, onClose: () => void, onFreteCalculado: () => void }) => {
+const ModalFrete = ({ isOpen, onClose, onFreteCalculado }: { isOpen: boolean, onClose: () => void, onFreteCalculado: (valor: number) => void }) => {
   const [resultado, setResultado] = useState<{
     distanciaKm: string
     pesoGramas: number
@@ -73,20 +73,16 @@ const ModalFrete = ({ isOpen, onClose, onFreteCalculado }: { isOpen: boolean, on
       })
 
       const rotaData = await rotaRes.json()
-      console.log(rotaData, "rotaData")
       const distanciaMetros = rotaData.features[0].properties.summary.distance
-      console.log(distanciaMetros, "distanciaMetros")
       const distanciaKm = distanciaMetros / 1000
-      console.log(distanciaKm, "distanciaKm")
       const custoFrete = (distanciaKm * 1.5) + (peso * 0.01)
-      console.log(custoFrete, "custoFrete")
 
       setResultado({
         distanciaKm: distanciaKm.toFixed(2),
         pesoGramas: peso,
         custoFrete: custoFrete.toFixed(2)
       })
-      onFreteCalculado()
+      onFreteCalculado(custoFrete * 100) // Passa o valor em centavos
     } catch (error) {
       console.error("Erro ao calcular frete:", error)
       setResultado(null)
@@ -127,6 +123,7 @@ const Shipping: React.FC<ShippingProps> = ({
   const [error, setError] = useState<string | null>(null)
   const [isModalFreteOpen, setIsModalFreteOpen] = useState(false)
   const [freteCalculado, setFreteCalculado] = useState(false)
+  const [valorFreteCalculado, setValorFreteCalculado] = useState<number | null>(null)
   
 
   const openModalFrete = () => {
@@ -236,13 +233,9 @@ const Shipping: React.FC<ShippingProps> = ({
                         />
                         <span className="text-base-regular">{option.name}</span>
                       </div>
-                                             <span className={`shippingAmount justify-self-end text-ui-fg-base ${!freteCalculado ? 'hidden' : ''}`}>
+                        <span className={`shippingAmount justify-self-end text-ui-fg-base ${!freteCalculado ? 'hidden' : ''}`}>
                         {formatAmount({
-                          amount: (() => {
-                            const freteText = document.querySelector('.resultadoFrete')?.textContent;
-                            const match = freteText?.match(/R\$\s*([\d,]+\.?\d*)/);
-                            return match ? parseFloat(match[1].replace(',', '.')) * 100 : (option.amount || 0);
-                          })(),
+                          amount: valorFreteCalculado || 0,
                           region: cart?.region,
                           includeTaxes: false,
                         })}
@@ -288,10 +281,10 @@ const Shipping: React.FC<ShippingProps> = ({
           <div className="text-small-regular">
             {cart && cart.shipping_methods.length > 0 && (
               <div className="flex flex-col w-1/3">
-                <Text className="txt-medium-plus text-ui-fg-base mb-1">
+                <Text className="txt-medium-plus text-ui-fg-base mb-1 hidden">
                   Method
                 </Text>
-                <Text className="txt-medium text-ui-fg-subtle">
+                <Text className="txt-medium text-ui-fg-subtle hidden">
                   {cart.shipping_methods[0].shipping_option.name} (
                   {formatAmount({
                     amount: cart.shipping_methods[0].price,
@@ -308,7 +301,10 @@ const Shipping: React.FC<ShippingProps> = ({
         </div>
       )}
       <Divider className="mt-8" />
-      <ModalFrete isOpen={isModalFreteOpen} onClose={closeModalFrete} onFreteCalculado={() => setFreteCalculado(true)} />
+      <ModalFrete isOpen={isModalFreteOpen} onClose={closeModalFrete} onFreteCalculado={(valor) => {
+        setFreteCalculado(true)
+        setValorFreteCalculado(valor)
+      }} />
     </div>
   )
 }

@@ -128,7 +128,6 @@ const Modal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) =>
   const valorTotal = total ? parseFloat(total) : 0
 
   function obterTaxaJuros(valor: number, parcelas: number): number {
-    // Taxa dinâmica baseada no valor e parcelas
     if (parcelas <= 3) return 0 // Sem juros até 3x
     
     // Faixa de valor baixo (até R$ 500)
