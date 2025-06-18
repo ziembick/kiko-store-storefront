@@ -51,7 +51,7 @@ const ModalFrete = ({ isOpen, onClose, onFreteCalculado }: { isOpen: boolean, on
 
   const calcularFrete = async (endereco: string) => {
     try {
-      const geoRes = await fetch(`https://api.openrouteservice.org/geocode/search?api_key=5b3ce3597851110001cf6248969ff2efc3034f989870c2bd5cac9c0f&text=${encodeURIComponent(endereco)}`)
+      const geoRes = await fetch(`https://api.openrouteservice.org/geocode/search?api_key=5b3ce3597851110001cf6248dd99b764d5c348f89d1da663615dcc05&text=${encodeURIComponent(endereco)}`)
       const geoData = await geoRes.json()
       if (!geoData.features.length) return
 
@@ -61,7 +61,7 @@ const ModalFrete = ({ isOpen, onClose, onFreteCalculado }: { isOpen: boolean, on
       const rotaRes = await fetch('https://api.openrouteservice.org/v2/directions/driving-car/geojson', {
         method: 'POST',
         headers: {
-          'Authorization': '5b3ce3597851110001cf6248969ff2efc3034f989870c2bd5cac9c0f',
+          'Authorization': '5b3ce3597851110001cf6248dd99b764d5c348f89d1da663615dcc05',
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({

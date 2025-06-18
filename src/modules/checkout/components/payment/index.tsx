@@ -42,14 +42,14 @@ const ModalFrete = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void 
   }, [isOpen])
 
   useEffect(() => {
-    if (isOpen && enderecoEntrega && resultado === null) {
+    if (isOpen && enderecoEntrega && resultado && calcularFrete && resultado === null) {
       calcularFrete(enderecoEntrega)
     }
   }, [isOpen, enderecoEntrega])
 
   const calcularFrete = async (endereco: string) => {
     try {
-      const geoRes = await fetch(`https://api.openrouteservice.org/geocode/search?api_key=5b3ce3597851110001cf6248969ff2efc3034f989870c2bd5cac9c0f&text=${encodeURIComponent(endereco)}`)
+      const geoRes = await fetch(`https://api.openrouteservice.org/geocode/search?api_key=5b3ce3597851110001cf6248dd99b764d5c348f89d1da663615dcc05&text=${encodeURIComponent(endereco)}`)
       const geoData = await geoRes.json()
       if (!geoData.features.length) return
 
@@ -59,7 +59,7 @@ const ModalFrete = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void 
       const rotaRes = await fetch('https://api.openrouteservice.org/v2/directions/driving-car/geojson', {
         method: 'POST',
         headers: {
-          'Authorization': '5b3ce3597851110001cf6248969ff2efc3034f989870c2bd5cac9c0f',
+          'Authorization': '5b3ce3597851110001cf6248dd99b764d5c348f89d1da663615dcc05',
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
@@ -160,8 +160,13 @@ const Modal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) =>
   }
 
   function calcularParcelamentoComJuros(valor: number, parcelas: number, taxaJurosMensal: number) {
+    // Converte a taxa de juros de porcentagem para decimal (ex: 2.5% -> 0.025)
     const i = taxaJurosMensal / 100
+    // Calcula o valor da parcela usando a fórmula de amortização SAC (Sistema de Amortização Constante)
+    // Fórmula: PMT = PV * (i / (1 - (1 + i)^-n))
+    // Onde: PMT = valor da parcela, PV = valor presente (valor total), i = taxa de juros mensal, n = número de parcelas
     const parcela = valor * (i / (1 - Math.pow(1 + i, -parcelas)))
+    // Retorna o valor da parcela formatado com 2 casas decimais
     return parseFloat(parcela.toFixed(2))
   }
 
