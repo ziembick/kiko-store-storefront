@@ -436,7 +436,7 @@ const Payment = ({
           </Button>
           <Button
             size="large"
-            className="mt-6"
+            className="mt-6 ml-[20px]"
             onClick={openModal}
             isLoading={isLoading}
           >
@@ -444,7 +444,7 @@ const Payment = ({
           </Button>
           <Button
             size="large"
-            className="botaoFrete mt-6"
+            className="botaoFrete mt-6 hidden"
             onClick={openModalFrete}
             isLoading={isLoading}
           >

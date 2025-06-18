@@ -28,7 +28,6 @@ export default async function Nav() {
               <span className="relative inline-block">
                 {" "}
                 {/* Evita erro de HTML inválido */}
-                <Scene />
               </span>
             </LocalizedClientLink>
           </div>
